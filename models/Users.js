@@ -27,8 +27,10 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
-});
+  },
+  progress: { type: mongoose.Schema.Types.ObjectId, ref: 'Progress' }
+}, { timestamps: true });
+
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
