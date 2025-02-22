@@ -45,16 +45,20 @@ import User from '../models/user.model.js';
 
 export const protect = async (req, res, next) => {
   try {
-    let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
+    // let token;
+    // if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    //   token = req.headers.authorization.split(' ')[1];
+    // }
+    const token = req.cookies.jwt;
 
+    // if (!token) {
+    //   return res.status(401).json({
+    //     status: 'error',
+    //     message: 'You are not logged in. Please log in to get access.'
+    //   });
+    // }
     if (!token) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'You are not logged in. Please log in to get access.'
-      });
+      return res.status(401).redirect('/login'); // Redirect to login if no token
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -69,9 +73,6 @@ export const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({
-      status: 'error',
-      message: 'Invalid token. Please log in again.'
-    });
+    res.status(401).redirect('/login');
   }
 };

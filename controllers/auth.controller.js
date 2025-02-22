@@ -1,14 +1,15 @@
 // src/controllers/auth.controller.js
-const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
+// const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+// const User = require('../models/user.model');
+import User from '../models/user.model.js';
 
 const signToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: '24h'
-  });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
 
-exports.register = async (req, res) => {
+
+export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -31,6 +32,13 @@ exports.register = async (req, res) => {
     // Generate token
     const token = signToken(user._id);
 
+     // Set JWT as HTTP-only cookie
+     res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+
     res.status(201).json({
       status: 'success',
       token,
@@ -50,7 +58,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -74,6 +82,13 @@ exports.login = async (req, res) => {
     // Generate token
     const token = signToken(user._id);
 
+     // Set JWT as HTTP-only cookie
+     res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({
       status: 'success',
       token,
@@ -91,4 +106,13 @@ exports.login = async (req, res) => {
       message: error.message
     });
   }
+};
+
+export const logout = (req, res) => {
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    expires: new Date(0),
+    secure: process.env.NODE_ENV === 'production',
+  });
+  res.status(200).json({ status: 'success', message: 'Logged out' });
 };
