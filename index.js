@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
 // app.use(express.static(path.join(new URL(import.meta.url).pathname, 'public')));
-// app.use(express.static('./public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/auth', authRoutes);
 
